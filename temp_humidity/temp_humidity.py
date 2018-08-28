@@ -6,19 +6,13 @@ from datetime import datetime
 import time
 import RPi.GPIO as GPIO  ## Import GPIO library
 import logging
-import pi.config as config
+from temp_humidity import config
 
 GPIO.setmode(GPIO.BOARD)  ## Use board pin numbering
 GPIO.setup(11, GPIO.OUT)
 GPIO.setup(13, GPIO.OUT)
 GPIO.setup(15, GPIO.OUT)
 
-"""
-config.py should have these variables:
-email_to = ""
-gmail_from = ""
-gmail_pass = ""
-"""
 
 def init_setup_email(temperature, email_to, gmail_from, gmail_pass):
     dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
