@@ -6,7 +6,7 @@ from datetime import datetime
 import time
 import RPi.GPIO as GPIO  ## Import GPIO library
 import logging
-from temp_humidity import config
+import config
 
 GPIO.setmode(GPIO.BOARD)  ## Use board pin numbering
 GPIO.setup(11, GPIO.OUT)
@@ -18,15 +18,13 @@ def init_setup_email(temperature, email_to, gmail_from, gmail_pass):
     dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
     ip_std = subprocess.Popen(['hostname', '-I'], stdout=subprocess.PIPE)
     ip = ip_std.communicate()[0]
-    message = "From: " + gmail_from + "\nTo: " + email_to + "\nSubject: Temperature all good\n\n" + dt + "\nTemperature is: " + str(
-        temperature) + "C at IP: " + ip
+    message = "From: " + gmail_from + "\nTo: " + email_to + "\nSubject: Temperature all good\n\n" + dt + "\nTemperature is: " + str(temperature) + "C at IP: " + ip
     send_email(email_to, gmail_from, gmail_pass, message)
 
 
 def alarm_email(temperature, email_to, gmail_from, gmail_pass):
     dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
-    message = "From: " + gmail_from + "\nTo: " + email_to + "\nSubject: Temperature sensor alert\n\n" + dt + "\nTemperature is: " + str(
-        temperature)
+    message = "From: " + gmail_from + "\nTo: " + email_to + "\nSubject: Temperature sensor alert\n\n" + dt + "\nTemperature is: " + str(temperature)
     send_email(email_to, gmail_from, gmail_pass, message)
 
 
@@ -39,6 +37,7 @@ def send_email(email_to, gmail_from, gmail_pass, message):
         server.sendmail(gmail_from, email_to, message)
         server.close()
     except:  # but print if theres an email issue
+        logging.info("There was a problem sending an email")
         print("There was a problem sending a mail alert!")
 
 
@@ -64,7 +63,8 @@ if __name__ == "__main__":
         dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
         output = '{0} - Temp: {1} C  Humidity: {2} %'.format(dt, temperature, humidity)
         print(output)
-        if init_setup:
+        if counter ==  50 and init_setup:
+            logging.info("Sending initial email to: {}".format(config.email_to))
             init_setup_email(temperature, config.email_to, config.gmail_from, config.gmail_pass)
             init_setup = False
         if counter % 50 == 0:
