@@ -8,7 +8,7 @@ import time
 import RPi.GPIO as GPIO  # Import GPIO library
 import logging
 import config
-import shedule
+import schedule
 
 GPIO.setmode(GPIO.BOARD)  # Use board pin numbering
 GPIO.setup(11, GPIO.OUT)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     init_setup = True
     counter = 0
     logging.basicConfig(filename='/home/pi/temperatures.log', filemode='w', level=logging.DEBUG)
-    schedule.every().day.at("12:15").do(send_functional_email)
+    schedule.every().day.at("12:31").do(send_functional_email)
     schedule.every().day.at("18:00").do(send_functional_email)
     while True:
         curr_humidity, curr_temp = Adafruit_DHT.read_retry(11, 4)
