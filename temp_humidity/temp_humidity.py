@@ -52,9 +52,9 @@ def send_email(email_to, gmail_from, gmail_pass, message, dt):
 
 
 def activate_led(temperature):
-    if temperature <= too_cold:
+    if temperature <= config.too_cold:
         led_control(15)
-    elif temperature >= too_hot:
+    elif temperature >= config.too_hot:
         led_control(13)
     else:
         led_control(11)
@@ -71,8 +71,6 @@ def led_control(chan):
 
 
 if __name__ == "__main__":
-    too_cold = config.too_cold
-    too_hot = config.too_hot
     start = time.time() - config.delay_email_seconds
     init_setup = True
     counter = 0
