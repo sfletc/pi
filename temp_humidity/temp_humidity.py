@@ -71,14 +71,15 @@ def led_control(chan):
 
 
 if __name__ == "__main__":
-    too_cold = 22.0
-    too_hot = 27.0
-    start = time.time() - 600.0
+    too_cold = config.too_cold
+    too_hot = config.too_hot
+    start = time.time() - config.delay_email_seconds
     init_setup = True
     counter = 0
     logging.basicConfig(filename='/home/pi/temperatures.log', filemode='w', level=logging.DEBUG)
-    schedule.every().day.at("12:31").do(send_functional_email)
-    schedule.every().day.at("18:00").do(send_functional_email)
+    schedule.every().day.at(config.schedule_morning).do(send_functional_email)
+    schedule.every().day.at(config.schedule_afternoon).do(send_functional_email)
+    logging.info("email: {0}, lower: {1}, upper: {2}, delay: {3}, morning: {4}, afternoon: {5}".format(config.email_to, config.too_cold, config.too_hot, config.delay_email_seconds, config.schedule_morning, config.schedule_afternoon))
     while True:
         curr_humidity, curr_temp = Adafruit_DHT.read_retry(11, 4)
         date_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S %p")
@@ -91,9 +92,9 @@ if __name__ == "__main__":
         if counter % 50 == 0:
             logging.info(output)
         activate_led(curr_temp)
-        if curr_temp <= too_cold or curr_temp >= too_hot:
+        if curr_temp <= config.too_cold or curr_temp >= config.too_hot:
             now = time.time()
-            if now - start > 600.0:
+            if now - start > config.delay_email_seconds:
                 start = time.time()
                 alarm_email(curr_temp, config.email_to, config.gmail_from, config.gmail_pass, date_time)
         schedule.run_pending()
