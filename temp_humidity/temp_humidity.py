@@ -71,6 +71,7 @@ class THLogger(object):
         self.init_setup = True
         self.counter = 0
         self.leds = Led()
+        self.previous_temp = 22.0
 
     def logging(self):
         while True:
@@ -79,17 +80,19 @@ class THLogger(object):
                 logging.info("{0} - Sending initial email to: {1}".format(date_time, config.email_to))
                 send_functional_email()
                 self.init_setup = False
-            if self.counter % 50 == 0:
+            if self.counter % 50 == 0 and self.previous_temp - curr_temp < 8:
                 logging.info(output)
             self.leds.select_led(curr_temp)
             if curr_temp <= config.too_cold or curr_temp >= config.too_hot:
-                now = time.time()
-                if now - self.start > config.delay_email_seconds:
-                    self.start = time.time()
-                    email = EmailData("Temperature alert!!", curr_temp, curr_humidity)
-                    email.send_email()
+                if self.previous_temp - curr_temp < 8.0:
+                    now = time.time()
+                    if now - self.start > config.delay_email_seconds:
+                        self.start = time.time()
+                        email = EmailData("Temperature alert!!", curr_temp, curr_humidity)
+                        email.send_email()
             schedule.run_pending()
-            self.counter+=1
+            self.previous_temp = curr_temp #hack to ignore spurious low readings
+            self.counter += 1
 
     @staticmethod
     def _get_sensor_data():
